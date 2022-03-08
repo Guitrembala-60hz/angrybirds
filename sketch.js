@@ -4,12 +4,15 @@ const Bodies = Matter.Bodies;
 const Constraint = Matter.Constraint;
 
 var engine, world;
-var box1, pig1, bgImg, platform;
-var slingshot;
+var box1, pig1, platform;
+var slingshot, gamestate = "onSling";
+var bgImg = "sprites/bg.png";
+var backgroundimg;
+var score = 0;
 
 
 function preload(){
-    bgImg = loadImage("sprites/bg.png");
+    getBackground();
 }
 
 function setup(){
@@ -47,17 +50,27 @@ function setup(){
 }
 
 function draw(){
-    background(bgImg);
+if(backgroundimg) {
+    background(backgroundimg);
+}
+
+noStroke();
+fill("white");
+textSize(35);
+text("score: "+ score, width-300, 50); 
+    
     Engine.update(engine);
     box1.display();
     box2.display();
     ground.display();
     platform.display();
     pig1.display();
+    pig1.score();
     log1.display();
     box3.display();
     box4.display();
     pig3.display();
+    pig3.score();
     log3.display();
 
     box5.display();
@@ -68,20 +81,42 @@ function draw(){
 
     slingshot.display();
    
+    
 
     
 }
 
 function mouseDragged() {
+    if(gamestate !== "launched") {
     Matter.Body.setPosition(bird.body,{x:mouseX,y:mouseY});
+    }
 }
 
 function mouseReleased() {
     slingshot.fly();
+    gamestate = "launched";
 }
 
 function keyPressed() {
     if(keyCode === 32 ) {
-        slingshot.attach(bird.body);
+       // slingshot.attach(bird.body);
     }
+}
+
+async function getBackground(){
+    var resposta = await fetch("https://worldtimeapi.org/api/timezone/America/Cuiaba");
+    var respostaJSON = await resposta.json();
+
+    var datatime = respostaJSON.datetime;
+    var hora = datatime.slice(11,13);
+    console.log(hora);
+
+    if(hora>=06 && hora<=19) {
+        bgImg = "sprites/bg2.jpg";
+    }
+    else{
+        bgImg = "sprites/bg.png";
+    }
+
+    backgroundimg = loadImage(bgImg);
 }
